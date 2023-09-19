@@ -1,4 +1,8 @@
 # segmentasiCitra
+
+Aplikasi percobaan ini ditujukan untuk pemetaan pemanfaatan lahan di wilayah kelurahan dan juga perhitungan luas pemanfaatan lahan di kelurahan berdasarkan tipenya.
+
+
 Segmentasi Citra Pemanfaatan Lahan di Kelurahan 
 
 Panduan program LMS
