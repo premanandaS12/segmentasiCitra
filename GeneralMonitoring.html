@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="{%static 'css/home-style.css' %}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+        <!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'  type='text/css'> -->
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>General Monitoring</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand logo" href="#">
+                <img src="{%static 'images/Logo.png' %}" alt="" width="200">
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav ms-auto">
+                  <a class="nav-link active" aria-current="page" href="http://127.0.0.1:8000/gm/">General Monitoring</a>
+                  <a class="nav-link" href="http://127.0.0.1:8000/dm/">Detail Monitoring</a>
+                </div>
+        </div>
+    </nav>
+
+    <p class="text-center mt-2 h3 judul">Luas Pemanfaatan Lahan Berdasarkan Tipe Pemanfaatan Lahannya</p>
+    <div class="container-fluid p-4 search">
+      <div class="row">
+        <div class="col">
+          <p class="searcht1">Cari Wilayah yang Ingin Diketahui Luas Pemanfaatan Lahannya</p>  
+        </div>
+      </div>
+      <form action="search" method="get">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="dropdown">
+              <p class="tingkatcari">Tingkat Wilayah Pencarian</p>
+              <select class="searchdrop form-select dd" name="tingkatCari">
+                <option value="Kelurahan" class="searchdrop-item" {% if kelurahan %} selected {% endif%}>Kelurahan</option>
+                <option value="Kecamatan" class="searchdrop-item" {% if kecamatan %} selected {% endif%}>Kecamatan</option>
+                <option value="KotaKabupaten" class="searchdrop-item" {% if kota %} selected {% endif%} >Kota/Kabupaten</option>
+                <option value="Provinsi" class="searchdrop-item" {% if provinsi %} selected {% endif%}>Provinsi</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <p class="tingkatcari">Cari Nama Wilayah</p>
+            <input class="form-control search-wilayah" type="text" name="namawilayah" id="wilayah" placeholder="Masukkan Nama Wilayah yang Dicari" {% if wilayah%} value={{wilayah}} {%endif%}value="">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    {% if pencarian %}
+    <div class="container-fluid">
+      <p class="text-center mt-2 h4">Luas Pemanfaatan Lahan di {{namaWil}} (dalam Km<sup>2</sup>)</p>
+    </div>
+    <div class="col-sm-8 mx-auto" >
+        <canvas id="horizBarChart"></canvas>
+        <script>
+          arrData={{ arrLuas|safe }}
+          const data = {
+              labels: ['RTH','Pertanian','Bangunan Non Industri','Bangunan Industri','Tambak','Perairan','Transportasi'],
+              datasets: [{
+                label: 'Luas Pemanfaatan Lahan (dalam km persegi)',
+                data: arrData,
+                backgroundColor: [
+                  '#274e13',
+                  '#b6d7a8',
+                  '#D97557',
+                  '#999999',
+                  '#46bdc6',
+                  '#073763',
+                  '#4b4b50'
+                ]
+              }]
+            };
+            const config = {
+              type: 'bar',
+              data,
+              options: {
+                  indexAxis:'y',
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+              }
+            };
+            const myChart = new Chart(
+              document.getElementById('horizBarChart'),
+              config
+            );
+          
+            const chartVersion = document.getElementById('chartVersion');
+            chartVersion.innerText = Chart.version;
+          
+          </script>
+    </div>
+    <div class="container-fluid">
+      <p class="text-center mt-2 h4 tab-title">Detail Pemanfaatan Lahan di {{TingkatCari}} {{namaWil}} (dalam Km<sup>2</sup>)</p>
+      <div class="d-flex justify-content-center">
+        <table class="table table-bordered table-dark justify-content-center tab">
+          <thead>
+            <tr>
+              <th scope="col" class="col-sm-1">Nomor</th>
+              <th scope="col" class="col-sm-4">Tipe Pemanfaatan Lahan</th>
+              <th scope="col" class="col-sm-3">Luas Pemanfaatan Lahan (dalam Km<sup>2</sup>)</th>
+              <th scope="col" class="col-sm-3">Persentase Luas Pemanfaatan Lahan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in res%}
+            <tr>
+              <th scope="row">{{result.labelZona}}</th>
+              <td>{{result.pemanfaatanLahan}}</td>
+              <td>{{result.luas}}</td>
+              <td>{{result.persentase}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <p class="text-center mt-2 h4 tab-title">Keterangan Tipe Pemanfaatan Lahan</p>
+      <div class="d-flex justify-content-center">
+        <table class="table table-bordered table-dark justify-content-center tab">
+          <thead>
+            <tr>
+              <th scope="col" class="col-sm-1">Nomor</th>
+              <th scope="col" class="col-sm-5">Tipe Pemanfaatan Lahan</th>
+              <th scope="col" class="col-sm-5">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>RTH</td>
+              <td>Berupa hutan, taman kota, taman makam, dll.</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>Pertanian</td>
+              <td>Berupa persawahan, perkebunan</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>Bangunan Non Industri</td>
+              <td>Berupa perumahan, fasilitas umum, sekolah, rumah sakit, industri UMKM, gedung perkantoran, hotel, dll.</td>
+            </tr>
+            <tr>
+              <th scope="row">4</th>
+              <td>Bangunan Industri</td>
+              <td>Berupa bangunan industri non-UMKM, dll.</td>
+            </tr>
+            <tr>
+              <th scope="row">5</th>
+              <td>Tambak</td>
+              <td>Berupa area tambak, pemancingan, ladang garam, dll.</td>
+            </tr>
+            <tr>
+              <th scope="row">6</th>
+              <td>Perairan</td>
+              <td>Berupa area sungai, pantai, waduk, laut, danau, dll.</td>
+            </tr>
+            <tr>
+              <th scope="row">7</th>
+              <td>Transportasi</td>
+              <td>Berupa area bandara, jalan raya/arteri dengan 4 lajur, dll.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+</body>
+</html>
